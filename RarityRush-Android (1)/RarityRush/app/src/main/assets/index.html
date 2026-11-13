@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rarity Rush</title>
+<style>
+:root{--bg:#f4f4f8;--fg:#15151f;--card:#fff;--mut:#6b6b80;--bd:#d8d8e4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12121a;--fg:#f1f1f8;--card:#1c1c28;--mut:#9a9ab0;--bd:#2c2c3c}}
+:root[data-theme="dark"]{--bg:#12121a;--fg:#f1f1f8;--card:#1c1c28;--mut:#9a9ab0;--bd:#2c2c3c}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1{margin:0 0 4px;font-size:26px}
+.sub{color:var(--mut);font-size:13px;margin-bottom:14px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.coins{font-weight:700;font-size:20px;margin-right:auto}
+button{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--fg);padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+button.p{background:var(--acc,#6d4cff);border-color:var(--acc,#6d4cff);color:#fff}
+button:disabled{opacity:.4;cursor:not-allowed}
+#stage{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;min-height:130px;margin-bottom:8px}
+.c{border-radius:12px;padding:12px 8px;text-align:center;border:2px solid var(--col);background:var(--card);box-shadow:0 0 14px -2px var(--col);animation:pop .4s ease both}
+.c b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--col)}
+.c span{display:block;font-size:14px;margin-top:6px}
+.big{animation:pop .4s ease both,glow 1s ease 3}
+@keyframes pop{from{transform:scale(.6) rotate(-6deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes glow{50%{box-shadow:0 0 34px 6px var(--col)}}
+#msg{min-height:22px;font-weight:600;margin-bottom:12px}
+h2{font-size:16px;margin:18px 0 8px}
+.odds{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.col{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
+.it{padding:5px 0;border-top:1px dashed var(--bd)}
+.sl{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.sl input{width:64px;font:inherit;padding:5px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--fg)}
+.sl button{padding:4px 10px;font-size:12px}
+.r{border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:8px 10px;font-size:13px;border-left:5px solid var(--col)}
+.r b{color:var(--col)}
+.r .n{color:var(--mut);font-size:12px}
+.own{opacity:1}.miss{opacity:.4}
+.shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.s{border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:10px;font-size:13px;display:flex;flex-direction:column;gap:6px}
+.s b{font-size:14px}.s .d{color:var(--mut);font-size:12px;flex:1}
+.s button{padding:7px 10px;font-size:13px}
+.lv{font-size:11px;color:var(--acc,#6d4cff);font-weight:700}
+.bet{border:1px solid var(--bd);background:var(--card);border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.bet input{width:110px;font:inherit;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--fg)}
+.bet button{padding:7px 10px;font-size:13px}
+.th{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:2px}
+.ts{padding:3px 8px;font-size:11px}
+#bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+#bg i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.3;will-change:transform}
+#bg .stars{position:absolute;inset:0;opacity:.35;background-image:radial-gradient(1.5px 1.5px at 30px 40px,var(--fg),transparent),radial-gradient(1px 1px at 100px 90px,var(--fg),transparent);background-size:220px 220px,160px 160px}
+.c .ic{display:block;font-style:normal;font-size:30px;margin-bottom:2px}
+#fx{position:fixed;inset:0;z-index:50;pointer-events:none}
+.met{position:absolute;height:2px;width:140px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--m1,#8b7bff),var(--m2,#a5f3fc));box-shadow:0 0 8px 1px var(--m1,#8b7bff);opacity:0;transform-origin:right center;animation:met var(--d,1.6s) linear forwards}
+@keyframes met{0%{opacity:0;transform:rotate(30deg) translateX(0)}12%{opacity:1}100%{opacity:0;transform:rotate(30deg) translateX(1100px)}}
+#scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .3s;z-index:59}
+#scrim.on{opacity:1;pointer-events:auto}
+#dr{position:fixed;top:0;left:0;bottom:0;width:340px;max-width:92vw;background:var(--card);border-right:1px solid var(--bd);transform:translateX(-102%);transition:transform .3s ease;z-index:60;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:6px 0 28px rgba(0,0,0,.3)}
+#dr.open{transform:none}
+#dr.open~#tab{display:none}
+#tab{position:fixed;left:0;top:38%;z-index:58;display:flex;align-items:center;gap:2px;padding:6px 8px 6px 6px;border-radius:0 16px 16px 0;border-left:0;font-size:16px}
+.av{width:38px;height:38px;border-radius:50%;background-size:cover;background-position:center;background-color:var(--bg);border:2px solid var(--acc,#6d4cff);display:flex;align-items:center;justify-content:center;font-size:22px;flex:none}
+.av.big{width:64px;height:64px;font-size:34px;cursor:pointer}
+.hd{display:flex;gap:12px;align-items:center;padding:14px 14px 8px;position:relative}
+.hx{flex:1;min-width:0;padding-top:14px}
+.hx input{width:100%;font:inherit;font-weight:700;padding:6px 8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--fg);margin-bottom:6px}
+.hx .row{display:flex;gap:6px}
+.hx .row button,.emo button{padding:4px 8px;font-size:12px}
+.cl{position:absolute;top:6px;right:8px;padding:2px 8px;font-size:12px}
+.emo{display:flex;gap:4px;padding:0 14px 8px;flex-wrap:wrap}
+.tabs{display:flex;border-top:1px solid var(--bd);border-bottom:1px solid var(--bd)}
+.tabs button{flex:1;border:0;border-radius:0;background:transparent}
+.tabs button.on{border-bottom:3px solid var(--acc,#6d4cff)}
+.dc{flex:1;overflow-y:auto;padding:10px 14px 20px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.chips button{padding:5px 9px;font-size:12px}
+.chips button.on{border-color:var(--acc,#6d4cff);box-shadow:0 0 0 1px var(--acc,#6d4cff)}
+.dots{margin-right:4px}.dots i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:2px}
+.sec{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 4px}
+.cp{display:flex;gap:6px}.cp input{width:40px;height:34px;padding:0;border:1px solid var(--bd);border-radius:8px;background:none}
+.ck{display:flex;align-items:center;gap:8px;font-size:13px;margin:8px 0}
+.hi{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--bd);font-size:13px}
+.hic{font-size:20px;width:26px;text-align:center}
+.dt{margin-left:auto;color:var(--mut);font-size:11px;white-space:nowrap}
+.dn{color:var(--mut);font-size:12px}
+.note{color:var(--mut);font-size:12px;margin-top:18px}
+</style></head><body><div id="scrim" onclick="drToggle(0)"></div>
+<aside id="dr"><div class="hd"><div class="av big" id="hav" onclick="$('avf').click()" title="Change photo"></div><div class="hx"><input id="nm" maxlength="20" placeholder="Your name" oninput="S.name=this.value;save()"><div class="row"><button onclick="$('avf').click()">Upload photo</button><button onclick="avClear()">Remove</button></div></div><button class="cl" onclick="drToggle(0)">✕</button></div><div class="emo" id="emo"></div><div class="tabs" id="tabs"></div><div class="dc" id="dc"></div></aside>
+<button id="tab" onclick="drToggle(1)"><span class="av" id="tabav"></span>›</button>
+<input type="file" id="avf" accept="image/*" hidden>
+<canvas id="fx"></canvas><div id="bg"><i style="left:-8%;top:5%;width:340px;height:340px;background:#6d4cff"></i><i style="right:-10%;top:35%;width:400px;height:400px;background:#ff2fd2"></i><i style="left:10%;top:68%;width:360px;height:360px;background:#38bdf8"></i><i style="right:5%;top:85%;width:320px;height:320px;background:#facc15"></i><div class="stars"></div></div>
+<main>
+<h1>Rarity Rush</h1>
+<div class="sub">A pretend-money loot box game. No real money, no prizes, just fun.</div>
+<div class="bar">
+<div class="coins">🪙 <span id="coins">0</span></div>
+<button id="free">Free coins (<span id="cd">0</span>s)</button>
+<button class="p" id="p1">Open 1 (100)</button>
+<button class="p" id="p10">Open 10 (900)</button>
+</div>
+<div class="bet"><div class="bar" style="margin-bottom:6px"><b>Bet per box</b><input type="number" id="bet" min="1" step="10"><button id="bmin">Min</button><button id="bh">½</button><button id="bd">×2</button><button id="bmax">Max</button></div><div class="sub" id="bi" style="margin:0"></div></div>
+<div id="msg"></div>
+<div id="stage"></div>
+<div class="bar"><button id="sell">Sell duplicates</button><button id="sellall">Sell everything</button><button id="mute">🔊 Sound on</button><span class="sub" id="stats" style="margin:0"></span></div>
+<h2>Shop</h2><div class="shop" id="shop"></div>
+<h2>Drop rates</h2><div class="odds" id="odds"></div>
+<h2>Collection <span id="prog" class="sub"></span></h2><div class="sub">Sold items stay in your collection as discovered.</div><div class="col" id="col"></div>
+<div class="note" id="pn"></div>
+</main>
+<script>
+const R=[
+["Common",40,"#9ca3af",5,["Rusty Coin","Wooden Token","Pebble"]],
+["Uncommon",25,"#4ade80",12,["Bronze Charm","Lucky Clover","Silver Button"]],
+["Rare",15,"#38bdf8",30,["Sapphire Shard","Knight’s Crest","Storm Glass"]],
+["Epic",8,"#a855f7",80,["Void Orb","Dragon Scale","Phantom Blade"]],
+["Legendary",5,"#f59e0b",200,["Golden Phoenix","Excalibur","Titan’s Heart"]],
+["Platinum",3,"#cbd5e1",500,["Platinum Crown","Ironwood Relic","Silver Moon"]],
+["Diamond",1.8,"#67e8f9",1200,["Flawless Gem","Prism King","Ice Heart"]],
+["Mythic",1,"#f43f5e",3000,["Kraken’s Eye","Hydra Fang","Chimera Soul"]],
+["Icon",.6,"#fb923c",8000,["The Champion","The Sage","The Rebel"]],
+["Star",.3,"#facc15",20000,["Shooting Star","Nova Core","Sunseed"]],
+["Cosmic",.2,"#818cf8",60000,["Galaxy Engine","Nebula Crown","Black Hole Gem"]],
+["Hyperversal",.1,"#ff2fd2",250000,["The Omniverse","Infinite Loop","Reality Seed"]],
+["Omniversal",.05,"#00e5b0",600000,["All-Seeing Lens","Multiverse Key","Cosmic Web"]],
+["Eternal",.03,"#e879f9",1500000,["Undying Flame","Timeless Hourglass","Forever Bloom"]],
+["Celestial",.02,"#7dd3fc",4000000,["Angel’s Halo","Moonlit Harp","Starborn Wings"]],
+["Divine",.012,"#fcd34d",10000000,["Sacred Chalice","Holy Grail","Oracle’s Scepter"]],
+["Transcendent",.008,"#c4b5fd",25000000,["Ascended Mind","Beyond Veil","Soul Prism"]],
+["Primordial",.005,"#dc2626",60000000,["First Ember","Ancient Titan Bone","Origin Stone"]],
+["Infinite",.003,"#a3e635",150000000,["Endless Staircase","Ouroboros","Boundless Gem"]],
+["Absolute",.002,"#0ea5e9",400000000,["Perfect Sphere","Final Verdict","Unbreakable Law"]],
+["Paradox",.001,"#fb7185",1000000000,["Impossible Cube","Liar’s Truth","Backwards Clock"]],
+["Genesis",.0005,"#34d399",3000000000,["Spark of Creation","First Word","Birth of Light"]],
+["Singularity",.0003,"#8b5cf6",10000000000,["Collapsed Star","Event Horizon","Point of Everything"]],
+["The One",.0001,"#f59e0b",50000000000,["The Final Prize","The Last Rarity","The Whole Truth"]]
+];
+const IC=["🪨","🍀","🔷","🔮","👑","🛡️","💎","🐉","🏆","⭐","🌌","🌀","👁️","⏳","😇","🔱","🦋","🌋","♾️","⚖️","🧩","🌱","⚫","☀️"];
+const ITEMS=[];R.forEach((r,i)=>r[4].forEach(n=>ITEMS.push({i,n,k:i+"|"+n})));
+let S={coins:1000,inv:{},seen:{},pulls:0,pity:0,free:0,up:{},tix:0,hist:[],shop:[],theme:{},name:"Player",vol:1,av:"",avE:""};
+try{const s=localStorage.getItem("rr1");if(s)S=Object.assign(S,JSON.parse(s))}catch(e){}
+const $=id=>document.getElementById(id);
+if(!S.seen)S.seen={};for(const k in S.inv)if(S.inv[k]>0)S.seen[k]=1;
+if(!S.hist)S.hist=[];if(!S.shop)S.shop=[];if(!S.theme)S.theme={};if(!S.name)S.name="Player";if(S.vol==null)S.vol=1;
+const save=()=>{try{localStorage.setItem("rr1",JSON.stringify(S))}catch(e){}if(typeof rd==="function")rd()};
+function roll(){
+ const w=weights(),tot=w.reduce((a,b)=>a+b,0);
+ let t=0,x=Math.random()*tot,i=0;
+ for(;i<R.length;i++){t+=w[i];if(x<t)break}
+ if(i>=R.length)i=0;
+ if(S.pity>=PT()-1&&i<6){i=6}
+ if(S.tix>0&&i<3){i=3;S.tix--}
+ S.pity=i>=6?0:S.pity+1;
+ const pool=ITEMS.filter(o=>o.i===i);
+ return pool[Math.floor(Math.random()*pool.length)];
+}
+function pull(n,cost){
+ if(S.coins<cost)return;
+ S.coins-=cost;
+ const got=[];for(let k=0;k<n;k++){const o=roll();got.push(o);S.inv[o.k]=(S.inv[o.k]||0)+1;S.seen[o.k]=1;S.pulls++;S.hist.unshift({t:Date.now(),i:o.i,n:o.n,b:betVal()})}
+ if(S.hist.length>150)S.hist.length=150;
+ const best=got.reduce((a,b)=>b.i>a.i?b:a);sfx(best.i);if(best.i>=7){burst(best.i,R[best.i][2]);shower(best.i-5)}
+ $("stage").innerHTML=got.map(o=>`<div class="c ${o.i>=6?"big":""}" style="--col:${R[o.i][2]}"><i class="ic">${IC[o.i]}</i><b>${R[o.i][0]}</b><span>${o.n}</span></div>`).join("");
+ $("msg").textContent=best.i>=12?`🌠 BEYOND HYPERVERSAL! You pulled a ${R[best.i][0]}!!!`:best.i>=9?`🌌 INCREDIBLE! You pulled a ${R[best.i][0]}!`:best.i>=6?`✨ Nice! ${R[best.i][0]} pull!`:"Best pull: "+R[best.i][0];
+ save();draw();
+}
+function sellDupes(){
+ let g=0;
+ for(const k in S.inv){const c=S.inv[k];if(c>1){g+=(c-1)*R[+k.split("|")[0]][3];S.inv[k]=1}}
+ g=Math.round(g*(1+0.1*U("sell")));S.coins+=g;$("msg").textContent=g?`Sold duplicates for ${g.toLocaleString()} coins.`:"No duplicates to sell.";if(g)logS(`💰 Sold duplicates for ${g.toLocaleString()} 🪙`);
+ save();draw();
+}
+const UP=[
+{k:"luck",n:"Luck Charm",d:"+8% odds for every rarity above Common",max:10,base:300},
+{k:"sell",n:"Merchant",d:"+10% coins when selling duplicates",max:10,base:250},
+{k:"faucet",n:"Coin Faucet",d:"+100 coins per free claim",max:10,base:200},
+{k:"timer",n:"Quick Hands",d:"Free coin cooldown 3s shorter",max:8,base:200},
+{k:"pity",n:"Pity Shortener",d:"Pity timer 5 pulls shorter",max:5,base:1000},
+{k:"disc",n:"Bulk Discount",d:"Every box costs 5 less",max:10,base:400}
+];
+const TIX=1500;
+const FX=$("fx"),cx=FX.getContext("2d"),RM2=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let P=[],raf=0;
+function fit(){FX.width=innerWidth;FX.height=innerHeight}
+addEventListener("resize",fit);fit();
+function burst(i,col){
+ if(RM2)return;
+ const r=$("stage").getBoundingClientRect(),x=r.left+r.width/2,y=Math.min(Math.max(r.top+r.height/2,80),innerHeight-80),n=40+(i-7)*18;
+ for(let k=0;k<n;k++){const a=Math.random()*6.283,s=2+Math.random()*(4+(i-7)*.6);P.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,l:1,d:.012+Math.random()*.014,z:2+Math.random()*3,c:col})}
+ if(!raf)raf=requestAnimationFrame(loop);
+}
+function loop(){
+ cx.clearRect(0,0,FX.width,FX.height);
+ P=P.filter(p=>p.l>0);
+ P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.06;p.vx*=.985;p.l-=p.d;cx.globalAlpha=Math.max(0,p.l);cx.fillStyle=p.c;cx.shadowColor=p.c;cx.shadowBlur=8;cx.beginPath();cx.arc(p.x,p.y,p.z*p.l+.5,0,6.283);cx.fill()});
+ cx.globalAlpha=1;
+ raf=P.length?requestAnimationFrame(loop):0;
+ if(!raf)cx.clearRect(0,0,FX.width,FX.height);
+}
+function meteor(){
+ if(RM2||document.hidden||S.theme.met===false)return;
+ const m=document.createElement("div");m.className="met";
+ m.style.left=Math.random()*90+"vw";m.style.top=(Math.random()*50-5)+"vh";
+ m.style.width=(90+Math.random()*100)+"px";
+ m.style.setProperty("--d",(1.1+Math.random()*1.2)+"s");
+ m.onanimationend=()=>m.remove();
+ $("bg").appendChild(m);
+}
+function shower(n){for(let k=0;k<n;k++)setTimeout(meteor,k*120)}
+setInterval(()=>{if(Math.random()<.8)meteor()},1400);meteor();
+function logS(x){S.shop.unshift({t:Date.now(),x});if(S.shop.length>150)S.shop.length=150}
+const ICS={default:[...IC],animals:["🐁","🐇","🦊","🐺","🦁","🐯","🐻","🦅","🦉","🐬","🦄","🐉","🐙","🦚","🦢","🦋","🐝","🦈","🐋","🦖","🐍","🦎","🦩","🦜"],space:["☄️","🌑","🌒","🌓","🌔","🌕","🪐","🛰️","🚀","👽","🛸","🌠","🌌","🔭","🌍","🌎","🌏","☀️","🌞","💫","⚡","🌀","🕳️","✨"],food:["🍞","🥕","🍎","🍇","🍒","🥐","🍔","🍕","🍣","🍰","🍩","🍫","🥂","🍷","🧁","🍦","🥭","🍍","🥥","🍓","🍑","🍉","🍯","🎂"],minimal:["●","◆","▲","■","★","✦","✚","❖","⬢","⬟","⬣","✪","❂","✹","✸","☸","⚜","❋","✺","❁","✿","⚘","✽","❈"]};
+const ICN={default:"Classic",animals:"Animals",space:"Space",food:"Treats",minimal:"Minimal"};
+const PRE={nebula:{n:"Nebula",c:["#6d4cff","#ff2fd2","#38bdf8","#facc15"],m:["#8b7bff","#a5f3fc"],a:"#6d4cff"},ocean:{n:"Ocean",c:["#0ea5e9","#14b8a6","#6366f1","#22d3ee"],m:["#38bdf8","#ccfbf1"],a:"#0ea5e9"},sunset:{n:"Sunset",c:["#f97316","#ef4444","#ec4899","#facc15"],m:["#fb923c","#fde68a"],a:"#f97316"},forest:{n:"Forest",c:["#22c55e","#16a34a","#84cc16","#14b8a6"],m:["#4ade80","#ecfccb"],a:"#16a34a"},mono:{n:"Mono",c:["#94a3b8","#64748b","#cbd5e1","#475569"],m:["#e2e8f0","#ffffff"],a:"#64748b"}};
+const SP={chimes:{n:"Chimes",m:1,s:.09,d:.5,t:"triangle",h:"sawtooth"},arcade:{n:"Arcade",m:2,s:.07,d:.14,t:"square",h:"square"},bells:{n:"Bells",m:1,s:.12,d:1.1,t:"sine",h:"sine",o:1},deep:{n:"Deep",m:.5,s:.14,d:.8,t:"sawtooth",h:"sawtooth"}};
+const EMO=["🙂","😎","🤠","🦊","🐲","👑","🚀","🎰"];
+let DT="pulls",HF=0;
+function ago(t){const s=(Date.now()-t)/1000;return s<60?"just now":s<3600?Math.floor(s/60)+"m ago":s<86400?Math.floor(s/3600)+"h ago":Math.floor(s/86400)+"d ago"}
+function th(){const k=S.theme.bg||"nebula",p=PRE[k]||PRE.nebula,cu=k==="custom",c=cu?(S.theme.cols||PRE.nebula.c):p.c;return{k,c,a:cu?(S.theme.acc||PRE.nebula.a):p.a,m:cu?[c[0],c[2]]:p.m}}
+function applyTheme(){const t=th(),r=document.documentElement.style;BL.forEach((b,i)=>b.style.background=t.c[i]);r.setProperty("--acc",t.a);r.setProperty("--m1",t.m[0]);r.setProperty("--m2",t.m[1])}
+function applyIcons(){IC.splice(0,IC.length,...(ICS[S.theme.icons]||ICS.default));$("odds").innerHTML=R.map(r=>`<div class="r" style="--col:${r[2]}"><b>${IC[R.indexOf(r)]} ${r[0]}</b> · ${r[1]}%<div class="n">Sells for ${r[3].toLocaleString()} 🪙</div></div>`).join("")}
+function applyAv(){["tabav","hav"].forEach(id=>{const e=$(id);e.style.backgroundImage=S.av?`url("${S.av}")`:"none";e.textContent=S.av?"":(S.avE||"🙂")})}
+function avEmo(e){S.avE=e;S.av="";applyAv();save()}
+function avClear(){S.avE="";S.av="";applyAv();save()}
+function drToggle(o){$("dr").classList.toggle("open",!!o);$("scrim").classList.toggle("on",!!o);if(o){$("nm").value=S.name||"";renderDr()}}
+function dTab(t){DT=t;renderDr()}
+function rd(){if($("dr").classList.contains("open")&&DT!=="theme")renderDr()}
+function setBg(k){S.theme.bg=k;applyTheme();save();renderDr()}
+function setCol(i,v){const t=th();if(t.k!=="custom"){S.theme.cols=[...t.c];S.theme.acc=t.a;S.theme.bg="custom"}S.theme.cols[i]=v;applyTheme();save()}
+function setAcc(v){const t=th();if(t.k!=="custom"){S.theme.cols=[...t.c];S.theme.bg="custom"}S.theme.acc=v;applyTheme();save()}
+function setIcons(k){S.theme.icons=k;applyIcons();draw();save();renderDr()}
+function setSnd(k){S.theme.sound=k;save();renderDr();pv(4)}
+function pv(i){if(S.mute||!(S.vol??1)){$("pvm").textContent="Sound is muted or the volume is at zero.";return}$("pvm").textContent="";sfx(i)}
+function themeReset(){S.theme={};S.vol=1;applyIcons();applyTheme();draw();save();renderDr()}
+function renderDr(){
+ $("emo").innerHTML=EMO.map(e=>`<button onclick="avEmo('${e}')">${e}</button>`).join("");
+ $("tabs").innerHTML=[["pulls","Pulls"],["store","Store"],["theme","Theme"]].map(([k,l])=>`<button class="${DT===k?"on":""}" onclick="dTab('${k}')">${l}</button>`).join("");
+ let h="";
+ if(DT==="pulls"){
+  h=`<div class="chips">${[[0,"All"],[3,"Epic+"],[6,"Diamond+"],[9,"Star+"]].map(([v,l])=>`<button class="${HF===v?"on":""}" onclick="HF=${v};renderDr()">${l}</button>`).join("")}</div>`;
+  const L=S.hist.filter(x=>x.i>=HF);
+  h+=L.length?L.map(x=>`<div class="hi"><span class="hic">${IC[x.i]}</span><div><b style="color:${R[x.i][2]}">${R[x.i][0]}</b> · ${x.n}<div class="dn">bet ${x.b.toLocaleString()}</div></div><span class="dt">${ago(x.t)}</span></div>`).join(""):`<div class="dn">No pulls here yet.</div>`;
+ }else if(DT==="store"){
+  h=S.shop.length?S.shop.map(x=>`<div class="hi"><div>${x.x}</div><span class="dt">${ago(x.t)}</span></div>`).join(""):`<div class="dn">No purchases or sales yet.</div>`;
+ }else{
+  const t=th();
+  h=`<div class="sec">Background</div><div class="chips">${Object.keys(PRE).map(k=>`<button class="${t.k===k?"on":""}" onclick="setBg('${k}')"><span class="dots">${PRE[k].c.slice(0,3).map(c=>`<i style="background:${c}"></i>`).join("")}</span>${PRE[k].n}</button>`).join("")}</div>`
+  +`<div class="sec">Custom colors${t.k==="custom"?" (active)":""}</div><div class="cp">${t.c.map((c,i)=>`<input type="color" value="${c}" oninput="setCol(${i},this.value)">`).join("")}<input type="color" value="${t.a}" title="Accent color" oninput="setAcc(this.value)"></div><div class="dn">Four background glows, then the accent color.</div>`
+  +`<label class="ck"><input type="checkbox" ${S.theme.met===false?"":"checked"} onchange="S.theme.met=this.checked;save()"> Shooting stars</label>`
+  +`<div class="sec">Icons</div><div class="chips">${Object.keys(ICS).map(k=>`<button class="${(S.theme.icons||"default")===k?"on":""}" onclick="setIcons('${k}')">${ICS[k].slice(3,6).join("")} ${ICN[k]}</button>`).join("")}</div>`
+  +`<div class="sec">Sounds</div><div class="chips">${Object.keys(SP).map(k=>`<button class="${(S.theme.sound||"chimes")===k?"on":""}" onclick="setSnd('${k}')">${SP[k].n}</button>`).join("")}</div>`
+  +`<div class="ck">Volume <input type="range" min="0" max="100" value="${Math.round((S.vol??1)*100)}" oninput="S.vol=this.value/100;save()"></div>`
+  +`<div class="chips"><button onclick="pv(4)">▶ Legendary</button><button onclick="pv(9)">▶ Star</button><button onclick="pv(12)">▶ Beyond</button></div><div class="dn" id="pvm"></div><div class="sec"></div><button onclick="themeReset()">Reset theme</button>`;
+ }
+ $("dc").innerHTML=h;
+}
+let AC=null;
+function tone(f,t,d,ty,v){const o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime+t;o.type=ty||"sine";o.frequency.value=f;g.gain.setValueAtTime(0.0001,n);g.gain.linearRampToValueAtTime(Math.max(.0001,(v||.15)*(S.vol??1)),n+.02);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(AC.destination);o.start(n);o.stop(n+d+.05)}
+function sfx(i){
+ if(i<3||S.mute)return;
+ try{
+  AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.resume)AC.resume();
+  const n=Math.min(10,3+Math.floor((i-3)/2)),b=294*Math.pow(2,Math.min(i,14)/36),sc=[1,1.25,1.5,2,2.5,3,4];
+  const pk=SP[S.theme.sound]||SP.chimes;for(let k=0;k<n;k++){const f=b*sc[k%7]*(k>6?2:1)*pk.m;tone(f,k*pk.s,pk.d,i>=9?pk.h:pk.t,.08);if(pk.o)tone(f*2.76,k*pk.s,pk.d*.6,"sine",.03)}
+  if(i>=6)tone(b/2,0,.9,"sine",.2);
+  if(i>=9)tone(55,0,1.2,"sine",.35);
+  if(i>=12){const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.type="sawtooth";o.frequency.setValueAtTime(100,t);o.frequency.exponentialRampToValueAtTime(2400,t+1.2);g.gain.setValueAtTime(Math.max(.0001,.08*(S.vol??1)),t);g.gain.exponentialRampToValueAtTime(.001,t+1.4);o.connect(g);g.connect(AC.destination);o.start();o.stop(t+1.5)}
+ }catch(e){}
+}
+function tierBtn(i){const n=ITEMS.filter(o=>o.i===i).reduce((a,o)=>a+(S.inv[o.k]||0),0);return n?`<button class="ts" onclick="sellTier(${i})">Sell all (${n})</button>`:""}
+function sellTier(i){
+ let g=0,q=0;
+ ITEMS.filter(o=>o.i===i).forEach(o=>{const c=S.inv[o.k]||0;g+=c*unit(o);q+=c;S.inv[o.k]=0});
+ if(q)logS(`💰 Sold ${q} ${R[i][0]} item${q>1?"s":""} for ${g.toLocaleString()} 🪙`);if(q)$("msg").textContent=`Sold ${q} ${R[i][0]} item${q>1?"s":""} for ${g.toLocaleString()} coins.`;
+ S.coins+=g;save();draw();
+}
+let armed=0;
+function sellEverything(){
+ const b=$("sellall");
+ if(!armed){armed=1;b.textContent="Click again to confirm";setTimeout(()=>{armed=0;b.textContent="Sell everything"},3000);return}
+ armed=0;b.textContent="Sell everything";
+ let g=0,q=0;
+ ITEMS.forEach(o=>{const c=S.inv[o.k]||0;g+=c*unit(o);q+=c;S.inv[o.k]=0});
+ if(q)logS(`💰 Sold everything (${q} items) for ${g.toLocaleString()} 🪙`);$("msg").textContent=q?`Sold ${q} items for ${g.toLocaleString()} coins.`:"Nothing to sell.";
+ S.coins+=g;save();draw();
+}
+function betVal(){let v=parseInt($("bet").value);if(!(v>=1))v=1;return v}
+function betB(){const r=betVal()/price1();return Math.max(-1.5,Math.min(1.5,0.15*Math.log2(r)))}
+function weights(){const m=1+0.08*U("luck"),b=betB();return R.map((r,j)=>r[1]*(j?m*(b>=0?1+b*j:1/(1-b*j)):1))}
+function betUI(){
+ const v=betVal();
+ $("p1").textContent=`Open 1 (${v.toLocaleString()})`;$("p10").textContent=`Open 10 (${(v*9).toLocaleString()})`;
+ $("p1").disabled=S.coins<v;$("p10").disabled=S.coins<v*9;
+ const w=weights(),t=w.reduce((a,b)=>a+b,0),p=i=>w.slice(i).reduce((a,b)=>a+b,0)/t*100,f=x=>x.toFixed(x<0.1?4:x<1?2:1)+"%";
+ $("bi").textContent=`Bigger bets raise your chances, smaller ones lower them. Diamond or better: ${f(p(6))} · Mythic or better: ${f(p(7))} · Hyperversal or better: ${f(p(11))} · Beyond Hyperversal: ${f(p(12))}`;
+}
+function setBet(v){$("bet").value=Math.max(1,Math.floor(v));$("bet").oninput()}
+function unit(o){return Math.round(R[o.i][3]*(1+0.1*U("sell")))}
+function itemRow(o){
+ const i=ITEMS.indexOf(o),c=S.inv[o.k]||0;
+ if(!S.seen[o.k])return '<div class="n miss">? ???</div>';
+ return `<div class="it"><div>✓ ${o.n} <span class="n">×${c}</span></div>`+(c?`<div class="sl"><input type="number" id="q${i}" min="1" max="${c}" value="${c}"><button onclick="sellItem(${i})">Sell</button><button onclick="sellItem(${i},1)">Sell all</button><span class="n">${unit(o).toLocaleString()} 🪙 each</span></div>`:'<div class="n">All sold</div>')+'</div>';
+}
+function sellItem(i,all){
+ const o=ITEMS[i],c=S.inv[o.k]||0;if(!c)return;
+ const q=all?c:Math.min(c,Math.max(1,parseInt($("q"+i).value)||1));
+ const g=q*unit(o);S.inv[o.k]=c-q;S.coins+=g;logS(`💰 Sold ${q}× ${o.n} (${R[o.i][0]}) for ${g.toLocaleString()} 🪙`);
+ $("msg").textContent=`Sold ${q}× ${o.n} for ${g.toLocaleString()} coins.`;
+ save();draw();
+}
+function U(k){return (S.up&&S.up[k])||0}
+function price1(){return 100-5*U("disc")}
+function price10(){return price1()*9}
+function PT(){return 50-5*U("pity")}
+function cost(u){return Math.round(u.base*Math.pow(1.7,U(u.k)))}
+function buy(k){const u=UP.find(x=>x.k===k);if(!u||U(k)>=u.max||S.coins<cost(u))return;logS(`🛒 Bought ${u.n} (Lv ${U(k)+1}) for ${cost(u).toLocaleString()} 🪙`);S.coins-=cost(u);S.up[k]=U(k)+1;save();draw();tick()}
+function buyTix(){if(S.coins<TIX)return;logS(`🎟️ Bought an Epic Ticket for ${TIX.toLocaleString()} 🪙`);S.coins-=TIX;S.tix++;save();draw()}
+function shop(){
+ $("shop").innerHTML=UP.map(u=>{const l=U(u.k),mx=l>=u.max;return `<div class="s"><b>${u.n}</b><div class="lv">Level ${l}/${u.max}</div><div class="d">${u.d}</div><button ${mx||S.coins<cost(u)?"disabled":""} onclick="buy('${u.k}')">${mx?"Maxed":"Upgrade ("+cost(u).toLocaleString()+" 🪙)"}</button></div>`}).join("")+`<div class="s"><b>Epic Ticket</b><div class="lv">Owned: ${S.tix}</div><div class="d">Auto-used when a pull would be below Epic, upgrading it to Epic.</div><button ${S.coins<TIX?"disabled":""} onclick="buyTix()">Buy (${TIX.toLocaleString()} 🪙)</button></div>`;
+}
+function draw(){
+ $("coins").textContent=S.coins.toLocaleString();
+ betUI();
+ $("pn").textContent=`Pity system: every ${PT()} pulls without a Diamond or better guarantees one.`;
+ shop();
+ $("stats").textContent=`Pulls: ${S.pulls} · Pity: ${S.pity}/${PT()}`;
+ const own=ITEMS.filter(o=>S.seen[o.k]).length;
+ $("prog").textContent=`(${own}/${ITEMS.length})`;
+ $("col").innerHTML=R.map((r,i)=>`<div class="r" style="--col:${r[2]}"><div class="th"><b>${IC[i]} ${r[0]}</b>${tierBtn(i)}</div>`+ITEMS.filter(o=>o.i===i).map(o=>`${itemRow(o)}`).join("")+"</div>").join("");
+}
+$("odds").innerHTML=R.map(r=>`<div class="r" style="--col:${r[2]}"><b>${IC[R.indexOf(r)]} ${r[0]}</b> · ${r[1]}%<div class="n">Sells for ${r[3].toLocaleString()} 🪙</div></div>`).join("");
+$("bet").value=S.bet||price1();
+$("bet").oninput=()=>{S.bet=betVal();save();betUI()};
+$("bmin").onclick=()=>setBet(0);
+$("bh").onclick=()=>setBet(betVal()/2);
+$("bd").onclick=()=>setBet(betVal()*2);
+$("bmax").onclick=()=>setBet(S.coins);
+$("p1").onclick=()=>pull(1,betVal());
+$("p10").onclick=()=>pull(10,betVal()*9);
+$("sell").onclick=sellDupes;
+$("sellall").onclick=sellEverything;
+$("free").onclick=()=>{if(Date.now()<S.free)return;S.coins+=200+100*U("faucet");S.free=Date.now()+(30-3*U("timer"))*1000;save();draw();tick()};
+function tick(){const l=Math.max(0,Math.ceil((S.free-Date.now())/1000));$("cd").textContent=l;$("free").disabled=l>0}
+setInterval(tick,500);tick();draw();
+const BL=[...document.querySelectorAll("#bg i")],ST=document.querySelector("#bg .stars");
+function bgMove(){
+ const y=window.scrollY||0;
+ BL.forEach((b,k)=>{b.style.transform=`translate3d(${Math.sin(y/260+k*1.7)*70}px,${Math.cos(y/340+k*2.3)*90}px,0) scale(${1+.15*Math.sin(y/500+k)})`});
+ ST.style.backgroundPosition=`0 ${-y*.25}px,0 ${-y*.4}px`;
+ $("bg").style.filter=`hue-rotate(${y*.12}deg)`;
+}
+if(!matchMedia("(prefers-reduced-motion: reduce)").matches)addEventListener("scroll",bgMove,{passive:true});
+bgMove();
+$("mute").textContent=S.mute?"🔇 Sound off":"🔊 Sound on";
+applyIcons();applyTheme();applyAv();$("nm").value=S.name||"";draw();
+$("avf").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=c.height=128;const s=Math.min(im.width,im.height);c.getContext("2d").drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,128,128);S.av=c.toDataURL("image/jpeg",.8);S.avE="";applyAv();save()};im.src=r.result};r.readAsDataURL(f);e.target.value=""};
+$("mute").onclick=()=>{S.mute=!S.mute;$("mute").textContent=S.mute?"🔇 Sound off":"🔊 Sound on";save()};
+</script></body></html>
